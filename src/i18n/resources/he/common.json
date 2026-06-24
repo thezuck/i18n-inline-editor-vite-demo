@@ -1,0 +1,32 @@
+{
+  "app": {
+    "title": "עורך תרגומים בתוך הדף",
+    "subtitle": "לחץ Alt/Option על טקסט מתורגם, שנה אותו, ושמור ישירות לקובץ JSON.",
+    "instructionsTitle": "נסה עכשיו",
+    "instructionsBody": "עבור לעברית או לערבית, ואז לחץ Alt/Option על טקסט כפתור ההתחברות או על כותרת הדף.",
+    "currentLanguage": "השפה הנוכחית שנבחרה: {{language}}"
+  },
+  "auth": {
+    "login": {
+      "title": "התחברות",
+      "subtitle": "השתמש במסך הקטן הזה כדי לבדוק עריכת תרגום בתוך הדף.",
+      "emailLabel": "אימייל",
+      "emailPlaceholder": "name@example.com",
+      "passwordLabel": "סיסמה",
+      "passwordPlaceholder": "הכנס סיסמה",
+      "welcome": "ברוך הבא, {{name}}",
+      "submit": "המשך"
+    }
+  },
+  "language": {
+    "english": "אנגלית",
+    "hebrew": "עברית",
+    "arabic": "ערבית"
+  },
+  "cards": {
+    "whatItDoesTitle": "מה הדמו עושה",
+    "whatItDoesBody": "הדפדפן שולח עריכות ל־middleware של Vite. ה־middleware כותב את קובץ ה־JSON המתאים.",
+    "safeTitle": "מיועד לפיתוח בלבד",
+    "safeBody": "נקודות הגישה של העורך נרשמות רק כאשר Vite רץ במצב dev-server."
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "app": {
+    "title": "Inline translation editor",
+    "subtitle": "Alt/Option-click any editable translated text, change it, and save directly into JSON.",
+    "instructionsTitle": "Try it now",
+    "instructionsBody": "Switch to Hebrew or Arabic, then Alt/Option-click the login button text or page heading.",
+    "currentLanguage": "Current active language: {{language}}"
+  },
+  "auth": {
+    "login": {
+      "title": "Log in",
+      "subtitle": "Use this tiny screen to test inline translation editing.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "name@example.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "welcome": "Welcome, {{name}}",
+      "submit": "Continue"
+    }
+  },
+  "language": {
+    "english": "English",
+    "hebrew": "Hebrew",
+    "arabic": "Arabic"
+  },
+  "cards": {
+    "whatItDoesTitle": "What this demo does",
+    "whatItDoesBody": "The browser sends edits to a Vite dev middleware. The middleware writes the matching JSON resource file.",
+    "safeTitle": "Dev-only by design",
+    "safeBody": "The editor endpoints are only registered while Vite is running in dev-server mode."
+  }
+}

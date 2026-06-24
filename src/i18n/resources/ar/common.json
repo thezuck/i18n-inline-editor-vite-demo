@@ -1,0 +1,32 @@
+{
+  "app": {
+    "title": "محرر ترجمة داخل الصفحة",
+    "subtitle": "اضغط Alt/Option على أي نص مترجم قابل للتحرير، غيّره، واحفظه مباشرة في JSON.",
+    "instructionsTitle": "جرّبه الآن",
+    "instructionsBody": "بدّل إلى العبرية أو العربية، ثم اضغط Alt/Option على نص زر تسجيل الدخول أو عنوان الصفحة.",
+    "currentLanguage": "اللغة الحالية: {{language}}"
+  },
+  "auth": {
+    "login": {
+      "title": "تسجيل الدخول",
+      "subtitle": "استخدم هذه الشاشة الصغيرة لاختبار تحرير الترجمة داخل الصفحة.",
+      "emailLabel": "البريد الإلكتروني",
+      "emailPlaceholder": "name@example.com",
+      "passwordLabel": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة المرور",
+      "welcome": "مرحباً، {{name}}",
+      "submit": "متابعة"
+    }
+  },
+  "language": {
+    "english": "الإنجليزية",
+    "hebrew": "العبرية",
+    "arabic": "العربية"
+  },
+  "cards": {
+    "whatItDoesTitle": "ماذا يفعل هذا العرض",
+    "whatItDoesBody": "يرسل المتصفح التعديلات إلى وسيط Vite في وضع التطوير. ثم يكتب الوسيط ملف JSON المناسب.",
+    "safeTitle": "مصمم للتطوير فقط",
+    "safeBody": "يتم تسجيل نقاط محرر الترجمة فقط عندما يعمل Vite في وضع خادم التطوير."
+  }
+}
