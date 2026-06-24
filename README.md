@@ -112,7 +112,7 @@ apply: 'serve'
 
 ## Adapting to your app
 
-Your existing setup uses:
+Your existing setup probably uses:
 
 ```txt
 src/i18n/resources/<language>/<namespace>.json
