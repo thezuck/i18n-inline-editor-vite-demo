@@ -1,137 +1,153 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './i18n-dev.css'
 
+const CARD_MAX_WIDTH = 420;
+const CARD_MAX_HEIGHT = 620;
+const VIEWPORT_MARGIN = 12;
+const CARD_OFFSET = 8;
+
 function isEditableI18nElement(target) {
-  if (!(target instanceof HTMLElement)) return null
-  return target.closest('[data-i18n-editable="true"]')
+  if (!(target instanceof HTMLElement)) return null;
+  return target.closest("[data-i18n-editable='true']");
 }
 
-function clampPosition(x, y) {
-  const padding = 16
-  const width = 430
-  const height = 390
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getCardPositionForElement(element) {
+  const rect = element.getBoundingClientRect();
+  const cardWidth = Math.min(CARD_MAX_WIDTH, window.innerWidth - VIEWPORT_MARGIN * 2);
+  const cardHeight = Math.min(CARD_MAX_HEIGHT, window.innerHeight - VIEWPORT_MARGIN * 2);
+  const maxX = window.innerWidth - cardWidth - VIEWPORT_MARGIN;
+  const maxY = window.innerHeight - cardHeight - VIEWPORT_MARGIN;
+  const rightX = rect.right + CARD_OFFSET;
+  const leftX = rect.left - cardWidth - CARD_OFFSET;
+  const hasRoomOnRight = rightX + cardWidth <= window.innerWidth - VIEWPORT_MARGIN;
 
   return {
-    x: Math.min(Math.max(x + 8, padding), window.innerWidth - width - padding),
-    y: Math.min(Math.max(y + 8, padding), window.innerHeight - height - padding),
-  }
+    x: clamp(hasRoomOnRight ? rightX : leftX, VIEWPORT_MARGIN, Math.max(VIEWPORT_MARGIN, maxX)),
+    y: clamp(rect.top, VIEWPORT_MARGIN, Math.max(VIEWPORT_MARGIN, maxY)),
+  };
 }
 
 export function I18nDevOverlay() {
-  const [selected, setSelected] = useState(null)
-  const [value, setValue] = useState('')
-  const [baseValue, setBaseValue] = useState('')
-  const [error, setError] = useState(null)
-  const [isSaving, setIsSaving] = useState(false)
+  const [selected, setSelected] = useState(null);
+  const [value, setValue] = useState("");
+  const [baseValue, setBaseValue] = useState("");
+  const [error, setError] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isOpen = Boolean(selected);
 
   useEffect(() => {
-    if (!import.meta.env.DEV) return
+    if (!import.meta.env.DEV) return;
 
     function onClick(event) {
-      const isModifierPressed = event.altKey || event.metaKey
-      if (!isModifierPressed) return
+      const isModifierPressed = event.altKey || event.metaKey;
+      if (!isModifierPressed) return;
 
-      const el = isEditableI18nElement(event.target)
-      if (!el) return
+      const el = isEditableI18nElement(event.target);
+      if (!el) return;
 
-      event.preventDefault()
-      event.stopPropagation()
+      event.preventDefault();
+      event.stopPropagation();
 
-      const key = el.dataset.i18nKey
-      const namespace = el.dataset.i18nNs || 'common'
-      const locale = el.dataset.i18nLocale || 'en'
+      const key = el.dataset.i18nKey;
+      const namespace = el.dataset.i18nNs || "common";
+      const locale = el.dataset.i18nLocale || "en";
 
-      if (!key) return
+      if (!key) return;
 
-      const pos = clampPosition(event.clientX, event.clientY)
+      const position = getCardPositionForElement(el);
 
       setSelected({
         key,
         namespace,
         locale,
-        renderedValue: el.textContent || '',
-        x: pos.x,
-        y: pos.y,
-      })
+        renderedValue: el.textContent || "",
+        x: position.x,
+        y: position.y,
+      });
     }
 
-    document.addEventListener('click', onClick, true)
-    return () => document.removeEventListener('click', onClick, true)
-  }, [])
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, []);
 
   useEffect(() => {
-    if (!selected) return
+    if (!selected) return;
 
-    let cancelled = false
+    let cancelled = false;
 
     async function loadRawValue() {
-      setError(null)
-      setValue(selected.renderedValue)
-      setBaseValue('')
+      setError(null);
+      setValue(selected.renderedValue);
+      setBaseValue("");
 
       const params = new URLSearchParams({
         locale: selected.locale,
         namespace: selected.namespace,
         key: selected.key,
-      })
+      });
 
       try {
-        const res = await fetch(`/__i18n/value?${params.toString()}`)
-        const json = await res.json()
+        const res = await fetch(`/__i18n/value?${params.toString()}`);
+        const json = await res.json();
 
-        if (cancelled) return
+        if (cancelled) return;
 
         if (!json.ok) {
-          setError(json.error || 'Failed to load translation value.')
-          return
+          setError(json.error || "Failed to load translation value.");
+          return;
         }
 
-        setValue(json.value ?? selected.renderedValue)
-        setBaseValue(json.baseValue ?? '')
+        setValue(json.value ?? selected.renderedValue);
+        setBaseValue(json.baseValue ?? "");
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : 'Failed to load translation value.')
+          setError(err instanceof Error ? err.message : "Failed to load translation value.");
         }
       }
     }
 
-    loadRawValue()
+    loadRawValue();
 
     return () => {
-      cancelled = true
-    }
-  }, [selected])
+      cancelled = true;
+    };
+  }, [selected]);
 
   useEffect(() => {
-    if (!selected) return
+    if (!isOpen) return;
 
     function onKeyDown(event) {
-      if (event.key === 'Escape') {
-        setSelected(null)
-        setError(null)
+      if (event.key === "Escape") {
+        setSelected(null);
+        setError(null);
       }
     }
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
-  }, [selected])
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isOpen]);
 
   const title = useMemo(() => {
-    if (!selected) return ''
-    return `${selected.locale}/${selected.namespace}: ${selected.key}`
-  }, [selected])
+    if (!selected) return "";
+    return `${selected.locale}/${selected.namespace}: ${selected.key}`;
+  }, [selected]);
 
   async function save() {
-    if (!selected) return
+    if (!selected) return;
 
-    setIsSaving(true)
-    setError(null)
+    setIsSaving(true);
+    setError(null);
 
     try {
-      const res = await fetch('/__i18n/update', {
-        method: 'POST',
+      const res = await fetch("/__i18n/update", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           locale: selected.locale,
@@ -139,35 +155,44 @@ export function I18nDevOverlay() {
           key: selected.key,
           value,
         }),
-      })
+      });
 
-      const json = await res.json()
+      const json = await res.json();
 
       if (!json.ok) {
-        const messages = [json.error || 'Failed to save translation.']
-
-        if (json.missingInterpolations?.length) {
-          messages.push(`Missing variables: ${json.missingInterpolations.join(', ')}`)
+        if (json.missingInterpolations?.length || json.extraInterpolations?.length) {
+          setError(
+            [
+              json.error || "Interpolation mismatch.",
+              json.missingInterpolations?.length
+                ? `Missing: ${json.missingInterpolations.join(", ")}`
+                : "",
+              json.extraInterpolations?.length
+                ? `Extra: ${json.extraInterpolations.join(", ")}`
+                : "",
+            ]
+              .filter(Boolean)
+              .join("\n")
+          );
+        } else {
+          setError(json.error || "Failed to save translation.");
         }
 
-        if (json.extraInterpolations?.length) {
-          messages.push(`Extra variables: ${json.extraInterpolations.join(', ')}`)
-        }
-
-        setError(messages.join('\n'))
-        return
+        return;
       }
 
-      setSelected(null)
-      window.location.reload()
+      setSelected(null);
+
+      // Simple and reliable. Later you can replace this with i18next.reloadResources().
+      window.location.reload();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save translation.')
+      setError(err instanceof Error ? err.message : "Failed to save translation.");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
   }
 
-  if (!selected) return null
+  if (!selected) return null;
 
   return (
     <div className="i18n-dev-overlay" dir="ltr">
@@ -182,8 +207,8 @@ export function I18nDevOverlay() {
             type="button"
             className="i18n-dev-close"
             onClick={() => {
-              setSelected(null)
-              setError(null)
+              setSelected(null);
+              setError(null);
             }}
             aria-label="Close translation editor"
           >
@@ -213,9 +238,9 @@ export function I18nDevOverlay() {
           rows={5}
           onChange={(event) => setValue(event.target.value)}
           onKeyDown={(event) => {
-            if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
-              event.preventDefault()
-              save()
+            if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+              event.preventDefault();
+              save();
             }
           }}
         />
@@ -227,8 +252,8 @@ export function I18nDevOverlay() {
             type="button"
             className="i18n-dev-button i18n-dev-secondary"
             onClick={() => {
-              setSelected(null)
-              setError(null)
+              setSelected(null);
+              setError(null);
             }}
           >
             Cancel
@@ -240,14 +265,14 @@ export function I18nDevOverlay() {
             disabled={isSaving}
             onClick={save}
           >
-            {isSaving ? 'Saving...' : 'Save'}
+            {isSaving ? "Saving..." : "Save"}
           </button>
         </div>
 
         <div className="i18n-dev-hint">
-          Alt/Option-click editable text. Cmd/Ctrl+Enter saves. Esc closes.
+          Alt/Option-click text to edit. Cmd/Ctrl+Enter saves. Esc closes.
         </div>
       </div>
     </div>
-  )
+  );
 }
